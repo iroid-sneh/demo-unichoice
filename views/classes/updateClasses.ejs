@@ -1,0 +1,309 @@
+<%- include('../layouts/header') %>
+
+<style>
+    .error {
+        color: red;
+    }
+    /* Add these new rules */
+    input[type="datetime-local"].error {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    /* Remove the default error styling for datetime inputs */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        opacity: 1;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- <h1 class="mb-4 text-gray-800 mt-2">Add Classes</h1> -->
+        <div class="col-lg-6 mx-auto">
+            <!-- Circle Buttons -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">Update Class</h6>
+                    <a href="/admin/myClasses" class="btn btn-danger">Back</a>
+                </div>
+                <div class="card-body">
+                    <form
+                        id="classes"
+                        method="post"
+                        action="/admin/myClasses/updateClasses/<%= classesId._id %>"
+                        enctype="multipart/form-data"
+                    >
+                        <div class="form-group">
+                            <label>
+                                Upload Thumbnail
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                style="line-height: 1.15"
+                                class="form-control"
+                                id="image"
+                                name="image"
+                                accept="image/jpg, image/jpeg, image/png"
+                                onchange="updateThumbnail(event)"
+                            />
+                            <img
+                                id="thumbnailPreview"
+                                src="<%= process.env.APP_URL_ADMIN %>/<%= classesId.thumbnail %>"
+                                alt="image"
+                                height="90"
+                                style="border-radius: 0"
+                                width="100"
+                                class="mt-2"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Class Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="className"
+                                name="className"
+                                placeholder="Enter Class Name"
+                                value="<%= classesId.className %>"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Description
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea
+                                class="form-control"
+                                id="description"
+                                name="description"
+                                placeholder="Enter Classes Description"
+                                rows="6"
+                                cols="33"
+                            >
+<%= classesId.description %></textarea
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Start Time
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" id="startTime"
+                            name="startTime" value="<%=
+                            moment(classesId.startTime).tz("Asia/Kolkata").format('YYYY-MM-DDTHH:mm')
+                            %>" onclick="this.showPicker();" />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                End Time
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="datetime-local" class="form-control" id="endTime"
+                            name="endTime" value="<%=
+                            moment(classesId.startTime).tz("Asia/Kolkata").format('YYYY-MM-DDTHH:mm')
+                            %>" onclick="this.showPicker();" />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Embedded Link
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="embadedLink"
+                                name="embadedLink"
+                                placeholder="Enter Classes Embedded Link"
+                                value="<%= classesId.embadedLink %>"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <div>
+                                <label>
+                                    <input type="checkbox" name="type[]" value="Exclusive" <%=
+                                    classesId.type && classesId.type.includes("Exclusive") ?
+                                    "checked": "" %>> Exclusive
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="type[]" value="Important" <%=
+                                    classesId.type && classesId.type.includes("Important") ?
+                                    "checked": "" %>> Important
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="type[]" value="Popular" <%=
+                                    classesId.type && classesId.type.includes("Popular") ?
+                                    "checked": "" %>> Popular
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="type[]" value="Must Attend" <%=
+                                    classesId.type && classesId.type.includes("Must Attend") ?
+                                    "checked": "" %>> Must Attend
+                                </label>
+                            </div>
+                        </div>
+                        <!-- <span class="error"></span> -->
+                        <button
+                            type="submit"
+                            onclick="updateRecord(ev)"
+                            class="btn btn-primary mt-3"
+                            style="background-color: #00ac4d; color: white"
+                        >
+                            Update
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer') %>
+<!-- jQuery Library (Must be loaded first) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Debugging: Check if jQuery and Validation Plugin are loaded
+
+        if (typeof $.validator === "undefined") {
+            alert("Error: jQuery Validation Plugin is not loaded!");
+            return;
+        }
+
+        // Custom validation: No spaces (prevent empty input)
+        $.validator.addMethod(
+            "noSpace",
+            function (value, element) {
+                return value.trim().length > 0;
+            },
+            "Field cannot be empty"
+        );
+
+        // Custom validation: Image extension check
+        $.validator.addMethod(
+            "imageExtension",
+            function (value, element) {
+                if (element.files.length === 0) return false; // Ensure file is selected
+                var allowedExtensions = ["jpg", "jpeg", "png"];
+                var fileName = element.files[0].name.toLowerCase();
+                var fileExtension = fileName.split(".").pop();
+                return allowedExtensions.includes(fileExtension);
+            },
+            "Please select a valid image file (JPG, JPEG, PNG)"
+        );
+
+        $.validator.addMethod(
+            "futureTime",
+            function (value, element) {
+                return new Date(value) > new Date();
+            },
+            "Start time must be in future time"
+        );
+
+        $.validator.addMethod(
+            "validateEndTime",
+            function (value, element) {
+                let startTime = $("#startTime").val();
+                return new Date(value) > new Date(startTime);
+            },
+            "End Time need to be after start time"
+        );
+
+        $.validator.addMethod(
+            "minimumClassTime",
+            function (value, element) {
+                let startTime = $("#startTime").val();
+                if (!startTime) {
+                    return false;
+                }
+                let start = new Date(startTime);
+                let end = new Date(value);
+                let timeDiffrenece = (end - start) / (1000 * 60);
+                return timeDiffrenece >= 20;
+            },
+            "class duration must be atleast 20 mins"
+        );
+
+        // Initialize form validation
+        $("#classes").validate({
+            rules: {
+                image: {
+                    required: true,
+                    imageExtension: true,
+                },
+                className: {
+                    required: true,
+                    noSpace: true,
+                },
+                description: {
+                    required: true,
+                    noSpace: true,
+                    maxlength: 20000,
+                },
+                startTime: {
+                    required: true,
+                    futureTime: true,
+                },
+                endTime: {
+                    required: true,
+                    validateEndTime: true,
+                    minimumClassTime: true,
+                },
+                embadedLink: {
+                    required: true,
+                },
+            },
+            messages: {
+                image: "Class thumbnail is required",
+                className: "Class Name is required",
+                description: {
+                    required: "Description is required",
+                    maxlength: "Description max length is 20,000 characters",
+                },
+                startTime: {
+                    required: "Class Start Time is required",
+                    futureTime: "Start Time Must be in Future Time",
+                },
+                endTime: {
+                    required: "Class End Time is required",
+                    validateEndTime: "End time need to be after Start Time",
+                    minimumClassTime: "Class duration must be atleast 20 mins",
+                },
+                embadedLink: "Class Link is required",
+            },
+            submitHandler: function (form) {
+                form.submit();
+            },
+        });
+
+        // Debugging: Prevent submission if validation fails
+        $("#classes").on("submit", function (e) {
+            if (!$(this).valid()) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    function updateRecord(ev) {
+        ev.preventDefault();
+        var id = ev.currentTarget.getAttribute("href");
+        Swal.fire({
+            title: "Are you sure you want to Update This Class",
+            icon: "Warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancleButtonColor: "#d33",
+            confirmButtontext: "yes, Update it",
+        });
+    }
+</script>

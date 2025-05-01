@@ -1,0 +1,101 @@
+<%- include('../layouts/header') %>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <h2 class="mb-4">Banners</h2>
+            <a href="/admin/student-applications" class="btn btn-danger">Back</a>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm p-4">
+                    <% if(success !='' ){ %>
+                    <div class="alert alert-success" id="success"><%= success %></div>
+                    <% } %> <% if(error !='' ){ %>
+                    <div class="alert alert-danger" id="error"><%= error %></div>
+                    <% } %>
+
+                    <div class="table-responsive">
+                        <table id="bannersTable" class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#success").show().delay(2000).fadeOut();
+        $("#error").show().delay(2000).fadeOut();
+        $("#pageTitle").text("Banners");
+        $("#select-bannersTable").addClass("active", "true");
+
+        if ($.fn.DataTable) {
+            $("#bannersTable").DataTable({
+                paging: true,
+                responsive: true,
+                searching: true,
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                ajax: {
+                    url: "/admin/student-applications/students/list/<%= collegeId %>",
+                    type: "GET",
+                },
+                columns: [
+                    {
+                        data: "id",
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                    },
+                    {
+                        data: "name",
+                        render: function (data, type, row, meta) {
+                            return row.name;
+                        },
+                    },
+                    {
+                        data: "email",
+                        render: function (data) {
+                            return data;
+                        },
+                    },
+                    {
+                        data: "phone",
+                        render: function (data) {
+                            return data;
+                        },
+                    },
+                    {
+                        data: "percentage",
+                        render: function (data) {
+                            return data;
+                        },
+                    },
+                ],
+            });
+        } else {
+            console.error("DataTables is not loaded");
+        }
+    });
+</script>

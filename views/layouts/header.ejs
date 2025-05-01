@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <title id="pageTitle">Unichoice Admin</title>
+        <!-- plugins:css -->
+        <link
+            rel="stylesheet"
+            href="/admin/assets/vendors/simple-line-icons/css/simple-line-icons.css"
+        />
+        <link rel="stylesheet" href="/admin/assets/vendors/flag-icon-css/css/flag-icons.min.css" />
+        <link rel="stylesheet" href="/admin/assets/vendors/css/vendor.bundle.base.css" />
+        <!-- endinject -->
+        <!-- Plugin css for this page -->
+        <link rel="stylesheet" href="/admin/assets/vendors/font-awesome/css/font-awesome.min.css" />
+        <link
+            rel="stylesheet"
+            href="/admin/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css"
+        />
+        <link rel="stylesheet" href="/admin/assets/vendors/jvectormap/jquery-jvectormap.css" />
+        <link rel="stylesheet" href="/admin/assets/vendors/daterangepicker/daterangepicker.css" />
+        <link rel="stylesheet" href="/admin/assets/vendors/chartist/chartist.min.css" />
+        <!-- End plugin css for this page -->
+        <!-- inject:css -->
+        <!-- endinject -->
+        <!-- Layout styles -->
+        <link rel="stylesheet" href="/admin/assets/css/vertical-light-layout/style.css" />
+        <!-- End layout styles -->
+        <link rel="shortcut icon" href="/admin/assets/images/favicon.png" />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" href="/css/sweetalert-custom.css" />
+    </head>
+    <style>
+        .swal2-icon-info {
+            padding-top: 20px;
+        }
+    </style>
+
+    <body>
+        <div class="container-scroller">
+            <!-- partial:partials/_navbar.html -->
+            <nav
+                class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row"
+            >
+                <div
+                    class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center"
+                >
+                    <a
+                        class="navbar-brand brand-logo"
+                        href="<%= process.env.APP_URL %>/admin/dashboard"
+                    >
+                        <img src="/admin/assets/images/logo.svg" alt="logo" class="logo-dark" />
+                        <img
+                            src="/admin/assets/images/logo-light.svg"
+                            alt="logo-light"
+                            class="logo-light"
+                        />
+                    </a>
+                    <a
+                        class="navbar-brand brand-logo-mini"
+                        href="<%= process.env.APP_URL %>/admin/dashboard"
+                    >
+                        <img src="/admin/assets/images/logo-mini.svg" alt="logo" />
+                    </a>
+                    <button
+                        class="navbar-toggler navbar-toggler align-self-center"
+                        type="button"
+                        data-toggle="minimize"
+                    >
+                        <span class="icon-menu"></span>
+                    </button>
+                </div>
+                <div class="navbar-menu-wrapper d-flex align-items-center">
+                    <ul class="navbar-nav navbar-nav-right">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link chgn-pswd-btn">
+                                <i class="icon-lock menu-icon"></i>
+                                <span class="nav-link">Change Password</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link logout-btn">
+                                <i class="icon-power menu-icon"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <button
+                        class="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+                        type="button"
+                        data-toggle="offcanvas"
+                    >
+                        <span class="icon-menu"></span>
+                    </button>
+                </div>
+            </nav>
+            <!-- partial -->
+            <!-- partial -->
+            <div class="container-fluid page-body-wrapper">
+                <!-- partial:../../partials/_sidebar.html -->
+                <nav class="sidebar sidebar-offcanvas" id="sidebar">
+                    <ul class="nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%= process.env.APP_URL %>/admin/dashboard">
+                                <span class="menu-title">Dashboard</span>
+                                <i class="icon-screen-desktop menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%= process.env.APP_URL %>/admin/myClasses">
+                                <span class="menu-title">My Classes</span>
+                                <i class="icon-book-open menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="<%= process.env.APP_URL %>/admin/study-materials"
+                            >
+                                <span class="menu-title">Study Materials</span>
+                                <i class="icon-doc menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%= process.env.APP_URL %>/admin/colleges">
+                                <span class="menu-title">Colleges</span>
+                                <i class="icon-graduation menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%= process.env.APP_URL %>/admin/updates">
+                                <span class="menu-title">Updates</span>
+                                <i class="icon-bell menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link"
+                                href="<%= process.env.APP_URL %>/admin/student-applications"
+                            >
+                                <span class="menu-title">Students Applications</span>
+                                <i class="icon-user menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%= process.env.APP_URL %>/admin/banners">
+                                <span class="menu-title">Banners</span>
+                                <i class="icon-magic-wand menu-icon"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<%= process.env.APP_URL %>/admin/contacts">
+                                <span class="menu-title">Contact Us</span>
+                                <i class="icon-phone menu-icon"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        document
+                            .querySelector(".logout-btn")
+                            .addEventListener("click", function (ev) {
+                                ev.preventDefault();
+                                Swal.fire({
+                                    title: "Are you Sure?",
+                                    text: "you will be logged out",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#d33",
+                                    cancelButtonColor: "#3085d6",
+                                    confirmButtonText: "Yes, Logout",
+                                }).then((logout) => {
+                                    if (logout.isConfirmed) {
+                                        window.location.href =
+                                            "<%= process.env.APP_URL %>/admin/logout";
+                                    }
+                                });
+                            });
+
+                        document
+                            .querySelector(".chgn-pswd-btn")
+                            .addEventListener("click", function (ev) {
+                                ev.preventDefault();
+                                Swal.fire({
+                                    title: "Change Password",
+                                    text: "do you want to change your password",
+                                    icon: "info",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#3085d6",
+                                    cancelButtonColor: "#d33",
+                                    confirmButtonText: "Yes, Change Password",
+                                }).then((logout) => {
+                                    if (logout.isConfirmed) {
+                                        window.location.href =
+                                            "<%= process.env.APP_URL %>/admin/change-password";
+                                    }
+                                });
+                            });
+                    });
+                </script>
+            </div>
+        </div>
+    </body>
+</html>

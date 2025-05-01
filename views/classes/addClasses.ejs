@@ -1,0 +1,289 @@
+<%- include('../layouts/header') %>
+
+<style>
+    .error {
+        margin-top: 5px;
+        color: red;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- <h1 class="mb-4 text-gray-800 mt-2">Add Classes</h1> -->
+        <div class="col-lg-6 mx-auto">
+            <!-- Circle Buttons -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">Add Class</h6>
+                    <a href="/admin/myClasses" class="btn btn-danger">Back</a>
+                </div>
+                <div class="card-body">
+                    <form id="classes" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>
+                                Upload Thumbnail
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="image"
+                                name="image"
+                                accept="image/jpg, image/jpeg, image/png"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Class Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="className"
+                                name="className"
+                                placeholder="Enter Class Name"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Description
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea
+                                class="form-control"
+                                id="description"
+                                name="description"
+                                placeholder="Enter Classes Description"
+                                rows="6"
+                                cols="33"
+                            ></textarea>
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Start Time
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="datetime-local"
+                                class="form-control"
+                                id="startTime"
+                                name="startTime"
+                                onclick="this.showPicker();"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                End Time
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="datetime-local"
+                                class="form-control"
+                                id="endTime"
+                                name="endTime"
+                                onclick="this.showPicker();"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Embedded Link
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="embadedLink"
+                                name="embadedLink"
+                                placeholder="Enter Classes Embedded Link"
+                            />
+                            <span class="error"></span>
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <div>
+                                <label>
+                                    <input type="checkbox" name="type" value="Exclusive" />
+                                    Exclusive
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="type" value="Important" />
+                                    Important
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="type" value="Popular" />
+                                    Popular
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="type" value="Must Attend" />
+                                    Must Attend
+                                </label>
+                            </div>
+                        </div>
+                        <span class="error"></span>
+                        <button
+                            type="submit"
+                            style="background-color: #00ac4d; color: white"
+                            class="btn mt-3"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer') %>
+<!-- jQuery Library (Must be loaded first) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Debugging: Check if jQuery and Validation Plugin are loaded
+
+        if (typeof $.validator === "undefined") {
+            alert("Error: jQuery Validation Plugin is not loaded!");
+            return;
+        }
+
+        // Custom validation: No spaces (prevent empty input)
+        $.validator.addMethod(
+            "noSpace",
+            function (value, element) {
+                return value.trim().length > 0;
+            },
+            "Field cannot be empty"
+        );
+
+        // Custom validation: Image extension check
+        $.validator.addMethod(
+            "imageExtension",
+            function (value, element) {
+                if (element.files.length === 0) return false; // Ensure file is selected
+                var allowedExtensions = ["jpg", "jpeg", "png"];
+                var fileName = element.files[0].name.toLowerCase();
+                var fileExtension = fileName.split(".").pop();
+                return allowedExtensions.includes(fileExtension);
+            },
+            "Please select a valid image file (JPG, JPEG, PNG)"
+        );
+
+        $.validator.addMethod(
+            "futureTime",
+            function (value, element) {
+                return new Date(value) > new Date();
+            },
+            "Start time must be in future time"
+        );
+
+        $.validator.addMethod(
+            "validateEndTime",
+            function (value, element) {
+                let startTime = $("#startTime").val();
+                return new Date(value) > new Date(startTime);
+            },
+            "End Time need to be after start time"
+        );
+
+        $.validator.addMethod(
+            "minimumClassTime",
+            function (value, element) {
+                let startTime = $("#startTime").val();
+                if (!startTime) {
+                    return false;
+                }
+                let start = new Date(startTime);
+                let end = new Date(value);
+                let timeDiffrenece = (end - start) / (1000 * 60);
+                return timeDiffrenece >= 20;
+            },
+            "class duration must be atleast 20 mins"
+        );
+
+        // Initialize form validation
+        $("#classes").validate({
+            rules: {
+                image: {
+                    required: true,
+                    imageExtension: true,
+                },
+                className: {
+                    required: true,
+                    noSpace: true,
+                },
+                description: {
+                    required: true,
+                    noSpace: true,
+                    maxlength: 20000,
+                },
+                startTime: {
+                    required: true,
+                    futureTime: true,
+                },
+                endTime: {
+                    required: true,
+                    validateEndTime: true,
+                    minimumClassTime: true,
+                },
+                embadedLink: {
+                    required: true,
+                },
+            },
+            messages: {
+                image: "Class thumbnail is required",
+                className: "Class Name is required",
+                description: {
+                    required: "Description is required",
+                    maxlength: "Description max length is 20,000 characters",
+                },
+                startTime: {
+                    required: "Class Start Time is required",
+                    futureTime: "Start Time Must be in Future Time",
+                },
+                endTime: {
+                    required: "Class End Time is required",
+                    validateEndTime: "End time need to be after Start Time",
+                    minimumClassTime: "Class duration must be atleast 20 mins",
+                },
+                embadedLink: "Class Link is required",
+            },
+            submitHandler: function (form) {
+                let startTimeInput = $("#startTime").val();
+                let endTimeInput = $("#endTime").val();
+
+                // Convert IST to UTC before storing
+                let startTimeUTC = convertISTtoUTC(startTimeInput);
+                let endTimeUTC = convertISTtoUTC(endTimeInput);
+
+                // Set the converted values back in the input fields
+                $("#startTime").val(startTimeUTC);
+                $("#endTime").val(endTimeUTC);
+
+                form.submit();
+            },
+        });
+
+        // Debugging: Prevent submission if validation fails
+        $("#classes").on("submit", function (e) {
+            if (!$(this).valid()) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    function convertISTtoUTC(datetime) {
+        if (!datetime) return "";
+        let istDate = moment.tz(datetime, "Asia/Kolkata"); // Interpret as IST
+        let utcDate = istDate.utc(); // Convert to UTC
+        return utcDate.format("YYYY-MM-DDTHH:mm");
+    }
+</script>

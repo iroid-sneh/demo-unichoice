@@ -1,0 +1,400 @@
+<%- include('../layouts/header') %>
+
+<style>
+    p {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td {
+        white-space: nowrap;
+    }
+
+    table.dataTable tbody td {
+        white-space: nowrap;
+    }
+
+    table.dataTable thead tr {
+        white-space: nowrap;
+    }
+
+    .dataTables_scroll {
+        padding: 0.5rem 0;
+    }
+
+    #productlist {
+        width: 100% !important;
+    }
+
+    #dataContainer p {
+        margin-bottom: 0 !important;
+        align-items: center;
+        display: flex;
+        padding: 10px 15px !important;
+        color: #000;
+        word-break: break-word;
+    }
+
+    #dataContainer ul {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+
+    #dataContainer ul li {
+        margin-bottom: 0 !important;
+        align-items: center;
+        display: flex;
+        padding: 5px 15px !important;
+        color: #000;
+        word-break: break-word;
+    }
+
+    #dataContainer span {
+        display: flex !important;
+        align-items: center;
+        padding: 10px 15px !important;
+        color: #000;
+        background-color: #d9d9d9;
+    }
+
+    .table-border-bottom {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .dataTables_wrapper {
+        padding-top: 0;
+    }
+
+    #dataContainer {
+        border: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    #dataContainer .table-border-bottom:last-child {
+        border: none !important;
+    }
+
+    #updatesTable td:nth-child(3) {
+        text-align: left;
+        width: 400px !important;
+    }
+</style>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <h2 class="mb-2"><%= tagId.name %> Updates</h2>
+            <a href="/admin/updates" class="btn btn-danger">Back</a>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm p-4">
+                    <% if(success !='' ){ %>
+                    <div class="alert alert-success" id="success"><%= success %></div>
+                    <% } %> <% if(error !='' ){ %>
+                    <div class="alert alert-danger" id="error"><%= error %></div>
+                    <% } %>
+
+                    <div class="text-end mb-3">
+                        <a
+                            href="/admin/updates/addUpdates/<%= tagId._id %>"
+                            class="btn btn-custom-green btn-primary mt-3"
+                            style="background-color: #00ac4d; color: white"
+                        >
+                            Add Update
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="updatesTable" class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">No</th>
+                                    <th class="text-center">Image/video</th>
+                                    <th class="text-center">Title</th>
+                                    <th class="text-center">Description</th>
+                                    <th class="text-center">Is Pinned</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    class="modal fade"
+    id="exampleModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+    data-bs-backdrop="static"
+>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1
+                    class="modal-title fs-5"
+                    style="color: #000; margin-left: 14px"
+                    id="productName"
+                ></h1>
+                <i
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                    class="fa fa-times"
+                    style="font-size: 22px; color: #000; cursor: pointer"
+                    aria-hidden="true"
+                ></i>
+            </div>
+            <div class="modal-body">
+                <div class="hh">
+                    <div id="imageContainer" class="d-flex flex-wrap">&nbsp;</div>
+                    <br />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap/jQuery Modal -->
+<div id="descriptionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Description</h5>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto">
+                <div id="modalDescriptionContent"></div>
+                <!-- Description will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0.0/dist/fancybox.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0.0/dist/fancybox.umd.js"></script>
+
+<script>
+    $(document).on("click", ".view-description-btn", function () {
+        let description = $(this).data("description"); // Get description from button
+
+        $("#modalDescriptionContent").html(description); // Insert description into modal
+        $("#descriptionModal").modal("show"); // Show modal (Bootstrap)
+    });
+
+    const tagId = "<%= tagId._id %>";
+    $(document).ready(function () {
+        Fancybox.bind("[data-fancybox]", {
+            Toolbar: false,
+            Thumbs: false,
+        });
+        $("#success").show().delay(2000).fadeOut();
+        $("#error").show().delay(2000).fadeOut();
+        $("#pageTitle").text("Colleges");
+        $("#select-collegesTable").addClass("active", "true");
+
+        if ($.fn.DataTable) {
+            $("#updatesTable").DataTable({
+                paging: true,
+                responsive: true,
+                searching: true,
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                ajax: {
+                    url: `/admin/updates/tagUpdates/list/${tagId}`,
+                    type: "GET",
+                },
+                columns: [
+                    {
+                        data: "index",
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                    },
+                    {
+                        render: function (data, type, row, meta) {
+                            return row.imageCount > 0
+                                ? `<center>
+                                            <div class="item-container d-flex align-items-center justify-content-center" style="width: 100%; margin-top: 4px;">
+                                                <a class="btn btn-secondary shadow btn-xs sharp me-1" style="margin-right: 8px;" href="#!" onclick="viewImages('${row._id}')"><i class="fa fa-eye" style="color:#000;"></i></a>
+                                            </div>
+                                        </center>`
+                                : `<div style="text-align: center; font-weight: 700;">-</div>`;
+                        },
+                    },
+                    { data: "title" },
+                    {
+                        data: "description",
+                        render: function (data, type, row, meta) {
+                            if (!row.description || row.description.trim() === "") {
+                                return `<div style="text-align: center; font-weight: 700;">-</div>`;
+                            }
+
+                            return `
+                                        <button class="view-description-btn" data-description='${row.description}' 
+                                            style="background: blue; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px;">
+                                            View Description
+                                        </button>
+                                    `;
+                        },
+                    },
+                    {
+                        data: "isPinned",
+                        render: function (data, type, row, meta) {
+                            return row.isPinned
+                                ? '<span class="badge bg-success">Yes</span>'
+                                : '<span class="badge bg-danger">No</span>';
+                        },
+                    },
+                    {
+                        data: null,
+                        render: function (data) {
+                            return `
+                                    <a href="/admin/updates/editUpdate/${data._id}" class="btn btn-warning btn-edit btn-sm" style="background-color: #4e73df; border-color: #4e73df; box-shadow: 0 2px 4px rgba(78, 115, 223, 0.3); transition: all 0.3s ease;">Edit</a>
+                                    <a href="#" class="btn btn-danger btn-dlt btn-sm" onclick="deleteUpdate('${data._id}')">Delete</a>
+                                    `;
+                        },
+                    },
+                ],
+                columnDefs: [
+                    {
+                        targets: "_all",
+                        className: "text-center",
+                    },
+                ],
+            });
+        } else {
+            console.error("DataTables is not loaded");
+        }
+    });
+    function viewImages(updateId) {
+        $.ajax({
+            url: `/admin/colleges/updates/view-images-videos/${updateId}`,
+            type: "GET",
+            data: { action: 0 },
+        }).then((productData) => {
+            let imageContainer = document.getElementById("imageContainer");
+            imageContainer.innerHTML = "";
+
+            let fancyboxItems = [];
+
+            productData.data.forEach((item, index) => {
+                var div = document.createElement("div");
+                div.style.margin = "5px";
+
+                var a = document.createElement("a");
+                a.setAttribute("data-fancybox", "gallery");
+
+                if (item.url.match(/\.(mp4|webm|ogg)$/)) {
+                    // If it's a video
+                    a.setAttribute("href", item.url);
+                    a.setAttribute("data-type", "video");
+
+                    var video = document.createElement("video");
+                    video.src = item.url;
+                    video.style.height = "100px";
+                    video.style.width = "100px";
+                    video.style.objectFit = "contain";
+                    video.controls = true;
+
+                    a.appendChild(video);
+                } else {
+                    // If it's an image
+                    a.setAttribute("href", item.url);
+
+                    var img = document.createElement("img");
+                    img.src = item.url;
+                    img.style.height = "100px";
+                    img.style.width = "100px";
+                    img.style.objectFit = "contain";
+                    img.style.cursor = "pointer";
+
+                    a.appendChild(img);
+                }
+
+                div.appendChild(a);
+                imageContainer.appendChild(div);
+
+                // Add to Fancybox items list
+                fancyboxItems.push({
+                    src: item.url,
+                    type: item.url.match(/\.(mp4|webm|ogg)$/) ? "video" : "image",
+                });
+            });
+
+            // Hide Bootstrap modal before opening Fancybox
+            $("#exampleModal").modal("hide");
+
+            // Open Fancybox with all images/videos
+            setTimeout(() => {
+                Fancybox.show(fancyboxItems, {
+                    Toolbar: true, // Show toolbar with navigation buttons
+                    Thumbs: false, // Enable thumbnail navigation
+                    loop: true, // Allow looping through images
+                });
+            }, 500);
+        });
+    }
+
+    $(document).on("click", ".read-more-btn", function () {
+        let $this = $(this);
+        let $wrapper = $this.closest(".wrapped-content");
+        let $shortText = $wrapper.find(".short-text");
+        let $fullText = $wrapper.find(".full-text");
+
+        if ($fullText.is(":visible")) {
+            $fullText.hide();
+            $shortText.show();
+            $this.text("Read More");
+        } else {
+            $(".full-text").hide(); // Hide all other expanded texts
+            $(".short-text").show(); // Show all collapsed texts
+
+            $fullText.show(); // Show only the clicked row's full text
+            $shortText.hide(); // Hide the short text
+            $this.text("Read Less");
+        }
+    });
+
+    function deleteUpdate(id) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/admin/colleges/deleteUpdate/${id}`,
+                    type: "DELETE",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire("Deleted!", response.message, "success");
+                            $("#updatesTable").DataTable().ajax.reload();
+                        } else {
+                            Swal.fire("Error!", response.message, "error");
+                        }
+                    },
+                    error: function (error) {
+                        Swal.fire(
+                            "Error!",
+                            "An error occurred while deleting the update.",
+                            "error"
+                        );
+                    },
+                });
+            }
+        });
+    }
+</script>

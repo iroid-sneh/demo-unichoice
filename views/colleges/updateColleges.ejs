@@ -1,0 +1,410 @@
+<%- include('../layouts/header') %>
+<style>
+    .error {
+        color: red;
+    }
+
+    .form-control {
+        padding: 10px;
+    }
+
+    select.form-control {
+        padding: 10px;
+    }
+
+    .dropdown {
+        background-color: transparent;
+        border: 1px solid #ced4da;
+    }
+
+    .checkbox-div {
+        display: flex !important;
+        flex-wrap: wrap;
+        padding-left: 0px !important;
+    }
+</style>
+<link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+/>
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css"
+/>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- <h1 class="mb-4 text-gray-800 mt-2">Add College</h1> -->
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">Update College</h6>
+                    <a href="/admin/colleges" class="btn btn-danger">Back</a>
+                </div>
+                <div class="card-body">
+                    <form id="collegeForm" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>
+                                Collage Index
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="index"
+                                name="index"
+                                min="1"
+                                placeholder="Enter Collage Index"
+                                required
+                                value="<%= collegeId.index %>"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="name"
+                                name="name"
+                                placeholder="Enter College Name"
+                                required
+                                value="<%= collegeId.name %>"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>College Application Link</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="collegeAppLink"
+                                name="collegeAppLink"
+                                placeholder="Enter College official Application Link"
+                                value="<%= collegeId.collegeAppLink %>"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                State
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select
+                                class="form-control"
+                                style="padding: 10px"
+                                name="state"
+                                id="state"
+                                required
+                            >
+                                <% states.forEach(state=> { %>
+                                <option value="<%= state._id %>" 
+                                    <%= (collegeId.state.toString() === state._id.toString()) ? 'selected' : "" %>
+                                    >
+                                    <%= state.name %>
+                                </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                City
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="city"
+                                name="city"
+                                placeholder="Enter City"
+                                value="<%= collegeId.city %>"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Stream
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select
+                                class="selectpicker form-control"
+                                style="background-color: transparent; border: 1px solid #ced4da"
+                                multiple
+                                data-live-search="true"
+                                id="stream"
+                                name="stream"
+                                required
+                            >
+                            <% streams.forEach(stream => { %>
+                                <option value="<%= stream._id %>" 
+                                    <%= collegeId.stream.includes(stream._id.toString()) ? "selected" : "" %>>
+                                    <%= stream.name %>
+                                </option>
+                            <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                NIRF Rank
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                min="1"
+                                class="form-control"
+                                id="nirfRank"
+                                name="nirfRank"
+                                placeholder="Enter NIRF Rank"
+                                value="<%= collegeId.nirfRank %>"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Average Tuition Fee
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="averageTutionFee"
+                                name="averageTutionFee"
+                                placeholder="Enter Average Tuition Fee"
+                                value="<%= collegeId.averageTutionFee %>"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <!-- <label style="margin-bottom: 0px;">Tag</label><br> -->
+                            <div class="form-check checkbox-div">
+                                <div>
+                                    <input
+                                        type="checkbox"
+                                        style="width: 20px; height: 20px"
+                                        id="top200"
+                                        name="top200"
+                                        <% if (collegeId.top200) { %>
+                                        checked 
+                                        <% } %>
+                                    />
+                                    <label style="margin-left: 10px; margin-top: 3px">
+                                        Top 200
+                                    </label>
+                                </div>
+                                <div>
+                                    <input
+                                        type="checkbox"
+                                        style="margin-left: 10px; width: 20px; height: 20px"
+                                        id="freeApplication"
+                                        name="freeApplication"
+                                        <% if (collegeId.freeApplication) { %>
+                                         checked
+                                        <% } %>
+                                    />
+                                    <label style="margin-left: 10px; margin-top: 3px">
+                                        Free Application
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="form-group"> -->
+                        <!-- <label style="margin-bottom: 0px;">Free Application</label><br> -->
+                        <!-- <div class="form-check" style="margin-top: 0px;">
+                            </div> -->
+                        <!-- </div> -->
+                        <div class="form-group">
+                            <label>
+                                Image
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                style="line-height: 1.15"
+                                class="form-control"
+                                id="image"
+                                name="image"
+                                accept="image/jpg, image/jpeg, image/png"
+                            />
+                            <img
+                                id="thumbnailPreview"
+                                src="<%= process.env.APP_URL_ADMIN %>/<%= collegeId.image %>"
+                                alt="image"
+                                height="90"
+                                style="border-radius: 0"
+                                width="100"
+                                class="mt-2"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            class="btn btn-custom-green btn-primary mt-3"
+                            style="background-color: #00ac4d; color: white"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+<!-- jQuery Library (Must be loaded first) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+
+<script>
+    $('#pageTitle').text('Add College');
+    $('#select-colleges').addClass('active', 'true');
+
+    $(document).ready(function () {
+        // Add a custom validation method for index
+        let isIndexValid = true; // Flag to track index validity
+
+        $('#index').change(function () {
+            const index = $(this).val();
+            const currentIndex = '<%= collegeId.index %>'; // Get current college index
+
+            if (!index) {
+                $('#index-error').remove();
+                isIndexValid = false;
+                return;
+            }
+
+            // Only check if index is different from current index
+            if (index != currentIndex) {
+                $.ajax({
+                    url: '/admin/colleges/checkCollegesIndex',
+                    type: 'GET',
+                    data: { index },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#index').removeClass('is-invalid');
+                            $('#index-error').remove();
+                            isIndexValid = true;
+                        } else {
+                            // Remove any existing validation messages
+                            $('label[for="index"].error').remove();
+                            $('#index-error').remove();
+                            
+                            // Add error message
+                            $('#index').after('<label id="index-error" class="error">This index already exists</label>');
+                            isIndexValid = false;
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('API Error:', error);
+                        isIndexValid = false;
+                    }
+                });
+            } else {
+                // If it's the same as current index, it's valid
+                isIndexValid = true;
+                $('#index-error').remove();
+            }
+        });
+
+        $('#index').on('input', function () {
+            const index = $(this).val();
+            if (!index) {
+                // Clear error message if field becomes empty
+                $('#index-error').remove();
+                $('label[for="index"].error').remove();
+            }
+        });
+
+        $("#collegeForm").validate({
+            rules: {
+                name: "required",
+                state: "required",
+                city: "required",
+                stream: "required",
+                nirfRank: "required",
+                averageTuitionFee: "required",
+                image: {
+                    required: function () {
+                        return !$("#imagePreview").attr("src");
+                    }
+                }
+            },
+            messages: {
+                name: "College Name is required",
+                state: "State is required",
+                city: "City is required",
+                stream: "Stream is required",
+                nirfRank: "NIRF Rank is required",
+                averageTuitionFee: "Average Tuition Fee is required",
+                image: "Logo is required"
+            },
+            submitHandler: function (form, event) {
+                event.preventDefault();
+
+                // Check if index is valid before proceeding
+                if (!isIndexValid) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Index',
+                        text: 'Please choose a different index number.',
+                    });
+                    return false;
+                }
+
+                 // if ($(this).valid()) { // Check if form is valid
+                 const formData = new FormData(this);
+
+                // Convert checkbox value to boolean before sending
+                formData.set("top200", $("#top200").is(":checked"));
+                formData.set("freeApplication", $("#freeApplication").is(":checked"));
+
+                Swal.fire({
+                    title: 'Are you sure you want to update college?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, update it!',
+                    cancelButtonText: 'No, cancel it!',
+                    confirmButtonColor: '#009443',
+                    cancelButtonColor: '#d33'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/admin/colleges/updateColleges/<%= collegeId._id %>',
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                if (response) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Success!',
+                                        text: 'College updated successfully.',
+                                    }).then(() => {
+                                        window.location.href = '/admin/colleges';
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error!',
+                                        text: response.message || 'Something went wrong!',
+                                    });
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: 'Something went wrong!',
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>

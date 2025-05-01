@@ -1,0 +1,234 @@
+<%- include('../layouts/header') %>
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
+<style>
+    .error {
+        color: red;
+    }
+    #addFile:hover {
+        background-color: #2e59d9 !important;
+        border-color: #2e59d9 !important;
+        box-shadow: 0 4px 8px rgba(78, 115, 223, 0.4);
+        transform: translateY(-1px);
+    }
+    .swal2-popup {
+        border-radius: 15px !important;
+        padding: 2rem !important;
+        padding-top: 20px !important;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- <h1 class="mb-4 text-gray-800 mt-2">Add Materials</h1> -->
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">Add Materials</h6>
+                    <a
+                        href="/admin/study-materials/materials/<%= collegeId %>"
+                        class="btn btn-danger"
+                    >
+                        Back
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form id="materialsForm" method="" enctype="multipart/text">
+                        <div class="form-group">
+                            <label>
+                                Category Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="categoryName"
+                                name="categoryName"
+                                placeholder="Enter Title"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                File Links
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div id="fileLinksContainer">
+                                <div class="file-entry">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="docTitle[]"
+                                        placeholder="Enter Document Title"
+                                        required
+                                    />
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="fileLink[]"
+                                        placeholder="Enter Link here"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                id="addFile"
+                                class="btn btn-primary mt-2"
+                                style="
+                                    background-color: #4e73df;
+                                    border-color: #4e73df;
+                                    box-shadow: 0 2px 4px rgba(78, 115, 223, 0.3);
+                                    transition: all 0.3s ease;
+                                "
+                            >
+                                <i class="fas fa-plus-circle mr-1"></i>
+                                Add More Files
+                            </button>
+                        </div>
+                        <button
+                            type="submit"
+                            class="btn btn-custom-green btn-primary mt-3"
+                            style="background-color: #00ac4d; color: white"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+<!-- jQuery Library (Must be loaded first) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Add validation rules
+        $("#materialsForm").validate({
+            rules: {
+                categoryName: {
+                    required: true,
+                },
+                "docTitle[]": {
+                    required: true,
+                },
+                "fileLink[]": {
+                    required: true,
+                },
+            },
+            messages: {
+                categoryName: {
+                    required: "Please enter a category name",
+                },
+                "docTitle[]": {
+                    required: "Please enter a document title",
+                },
+                "fileLink[]": {
+                    required: "Please enter a file link",
+                },
+            },
+            errorClass: "error",
+            errorElement: "span",
+            ignore: [],
+            errorPlacement: function (error, element) {
+                error.insertAfter(element);
+            },
+        });
+
+        // Modify the form submission to check validation and show confirmation
+        $("#materialsForm").submit(function (e) {
+            e.preventDefault();
+
+            // Check all fields including dynamic ones
+            let isValid = true;
+            $('input[name="docTitle[]"], input[name="fileLink[]"]').each(function () {
+                if (!$(this).val()) {
+                    $(this).valid();
+                    isValid = false;
+                }
+            });
+
+            if (!$(this).valid() || !isValid) {
+                return false;
+            }
+
+            // Show confirmation dialog
+            Swal.fire({
+                title: "Are you sure you want to add material?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, add it!",
+                cancelButtonText: "No, cancel it!",
+                confirmButtonColor: "#009443",
+                cancelButtonColor: "#d33",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const collegeId = "<%= collegeId %>";
+                    // Collect form data
+                    let formData = {
+                        collegeId: collegeId,
+                        title: $("#categoryName").val(),
+                        fileLinks: [],
+                    };
+
+                    // Collect all document titles and file links
+                    $(".file-entry").each(function () {
+                        let docTitle = $(this).find('input[name="docTitle[]"]').val();
+                        let fileLink = $(this).find('input[name="fileLink[]"]').val();
+
+                        if (docTitle && fileLink) {
+                            formData.fileLinks.push({ docTitle, fileLink });
+                        }
+                    });
+
+                    // Send AJAX request
+                    $.ajax({
+                        url: `/admin/study-materials/addMaterials/${collegeId}`,
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            window.location.href = `/admin/study-materials/materials/${collegeId}`;
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Failed!",
+                                text: xhr.responseJSON?.message || "Something went wrong!",
+                            });
+                        },
+                    });
+                }
+            });
+        });
+
+        // Update the addFile click handler for immediate validation
+        $("#addFile").click(function () {
+            const newFileEntry = $(`
+                        <div class="file-entry mt-2">
+                            <input type="text" class="form-control" name="docTitle[]" placeholder="Enter Document Title" required>
+                            <input type="text" class="form-control mt-2" name="fileLink[]" placeholder="Enter Link here" required>
+                            <button type="button" class="btn btn-danger remove-file mt-1">Remove</button>
+                        </div>
+                    `);
+
+            $("#fileLinksContainer").append(newFileEntry);
+
+            // Add blur event handlers for immediate validation
+            newFileEntry.find("input").on("blur", function () {
+                $(this).valid();
+            });
+        });
+
+        // Handle removing file input
+        $(document).on("click", ".remove-file", function () {
+            $(this).closest(".file-entry").remove();
+        });
+    });
+</script>

@@ -1,0 +1,155 @@
+<%- include('../layouts/header') %>
+
+<style>
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+        width: 100%;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 400px;
+        /* Restrict max width */
+    }
+
+    .eyes {
+        position: relative;
+    }
+
+    .eyes i {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+    .form-control {
+        padding-right: 40px;
+    }
+
+    .error {
+        color: red;
+    }
+
+    @media screen and (min-width: 991px) {
+        .center-container {
+            padding-left: 240px;
+        }
+    }
+</style>
+
+<div class="center-container">
+    <div class="col-lg-6 mx-auto">
+        <div class="card shadow mb-4 mx-auto">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    Change Password
+                </h6>
+            </div>
+            <div class="card-body">
+                <form
+                    id="changePass"
+                    method="post"
+                    action="/admin/change-password"
+                >
+                    <div class="form-group">
+                        <label>Current Password:</label>
+                        <div class="eyes">
+                            <input
+                                type="password"
+                                class="form-control"
+                                name="currentPassword"
+                                placeholder="Enter current password"
+                            />
+                            <i
+                                class="toggle-password fa fa-fw fa-eye-slash eye"
+                            ></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password:</label>
+                        <div class="eyes">
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="newPassword"
+                                name="newPassword"
+                                placeholder="Enter new password"
+                            />
+                            <i
+                                class="toggle-password fa fa-fw fa-eye-slash eye"
+                            ></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password:</label>
+                        <div class="eyes">
+                            <input
+                                type="password"
+                                class="form-control"
+                                name="confirmPassword"
+                                placeholder="Enter confirm password"
+                            />
+                            <i
+                                class="toggle-password fa fa-fw fa-eye-slash eye"
+                            ></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3 w-100">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer') %>
+<!-- jQuery Library (Must be loaded first) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+<script>
+    $(".eye").click(function () {
+        if ($(this).hasClass("fa-eye-slash")) {
+            $(this).removeClass("fa-eye-slash").addClass("fa-eye");
+            $(this).siblings("input").attr("type", "text");
+        } else {
+            $(this).removeClass("fa-eye").addClass("fa-eye-slash");
+            $(this).siblings("input").attr("type", "password");
+        }
+    });
+
+    $(document).ready(function () {
+        $("#changePass").validate({
+            rules: {
+                currentPassword: {
+                    required: true,
+                    minlength: 8,
+                },
+                newPassword: {
+                    required: true,
+                    minlength: 8,
+                },
+                confirmPassword: {
+                    required: true,
+                    equalTo: "#newPassword",
+                    minlength: 8,
+                },
+            },
+            messages: {
+                confirmPassword: {
+                    equalTo: "New password and confirm password do not match",
+                },
+            },
+            submitHandler: function (form) {
+                form.submit();
+            },
+        });
+    });
+</script>

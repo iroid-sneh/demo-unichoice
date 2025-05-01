@@ -1,0 +1,244 @@
+<%- include('../layouts/header') %>
+<style>
+    .error {
+        color: red;
+    }
+
+    .form-control {
+        padding: 10px;
+    }
+
+    select.form-control {
+        padding: 10px;
+    }
+    .cke_notifications_area {
+        display: none;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">Add Update</h6>
+                    <a href="/admin/updates/tagUpdates/<%= tagId._id %>" class="btn btn-danger">
+                        Back
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form id="collegeForm" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>
+                                Select Type
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-control" id="updateType" name="updateType" required>
+                                <option value="">Select Type</option>
+                                <option value="1">Title & Description</option>
+                                <option value="2">Title & Multiple Images</option>
+                                <option value="3">Title & One Video</option>
+                                <option value="4">Title Only</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Title
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="title"
+                                name="title"
+                                placeholder="Enter Title"
+                                required
+                            />
+                        </div>
+                        <div class="form-group type-1">
+                            <label>
+                                Description
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <textarea name="description" id="editor"></textarea>
+                        </div>
+                        <div class="form-group type-2">
+                            <label>
+                                Upload Images
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="imageFiles"
+                                name="mediaFiles"
+                                accept="image/jpg, image/jpeg, image/png"
+                                multiple
+                            />
+                            <div
+                                id="imagePreviewContainer"
+                                class="mt-3 d-flex flex-wrap gap-3"
+                            ></div>
+                        </div>
+                        <div class="form-group type-3">
+                            <label>
+                                Upload Video
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="videoFile"
+                                name="mediaFiles"
+                                accept="video/mp4"
+                            />
+                            <div id="videoPreviewContainer" class="mt-3"></div>
+                        </div>
+                        <div class="form-group mb-0">
+                            <input
+                                type="checkbox"
+                                style="width: 20px; height: 20px"
+                                id="isPinned"
+                                name="isPinned"
+                                value="true"
+                            />
+                            <label style="margin-left: 10px; margin-top: 3px">Pin</label>
+                        </div>
+                        <label class="pin-error text-danger mt-2" id="pin-error"></label>
+                        <br />
+                        <button
+                            type="submit"
+                            class="btn btn-custom-green btn-primary mt-3"
+                            style="background-color: #00ac4d; color: white"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
+<script>
+    CKEDITOR.replace("editor", {
+        toolbar: [
+            { name: "paragraph", items: ["BulletedList", "NumberedList"] },
+            { name: "editing", items: ["Undo", "Redo"] },
+        ],
+    });
+
+    const tagId = "<%= tagId._id %>";
+    $.ajax({
+        url: `/admin/updates/tag/Ispinned/${tagId}`,
+        type: "GET",
+        success: function (response) {
+            if (response.success) {
+                $(".pin-error").text(
+                    "If you want to pin this update please unpin the previous update first."
+                );
+                $("#isPinned").prop("checked", false).prop("disabled", true);
+            } else {
+                $("#isPinned").prop("checked", false).prop("disabled", false);
+            }
+        },
+    });
+
+    $(document).ready(function () {
+        let selectedImages = [];
+        function toggleFields() {
+            const selectedType = $("#updateType").val();
+            $(".type-1, .type-2, .type-3").hide();
+            $("#imageFiles, #videoFile, #description").removeAttr("required");
+            if (selectedType == "1") {
+                $(".type-1").show();
+                $("#description").attr("required", true);
+            } else if (selectedType == "2") {
+                $(".type-2").show();
+                $("#description").val(null);
+                $("#imageFiles").attr("required", true);
+            } else if (selectedType == "3") {
+                $(".type-3").show();
+                $("#description").val(null);
+                $("#videoFile").attr("required", true);
+            }
+        }
+        $("#updateType").change(toggleFields);
+        toggleFields();
+        $("#imageFiles").on("change", function (e) {
+            $("#videoFile").val(null);
+
+            const files = e.target.files;
+            for (let file of files) {
+                selectedImages.push(file);
+            }
+            updateImagePreview();
+        });
+        $("#videoFile").on("change", function (e) {
+            $("#imageFiles").val(null);
+        });
+        function updateImagePreview() {
+            $("#imagePreviewContainer").empty();
+            selectedImages.forEach((file, index) => {
+                const fileURL = URL.createObjectURL(file);
+                let previewElement = `
+                    <div class="position-relative" style="width: 100px;">
+                        <img src="${fileURL}" class="img-fluid rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                        <button type="button" class="btn btn-sm btn-danger remove-image" data-index="${index}" style="position: absolute; top: 0; right: 0;">X</button>
+                    </div>`;
+                $("#imagePreviewContainer").append(previewElement);
+            });
+        }
+        $(document).on("click", ".remove-image", function () {
+            const index = $(this).data("index");
+            selectedImages.splice(index, 1);
+            updateImagePreview();
+        });
+        $("#collegeForm").submit(function (e) {
+            e.preventDefault();
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+            const formData = new FormData(this);
+
+            // Clear any existing mediaFiles from formData
+            formData.delete("mediaFiles");
+
+            // Add all selected images to formData if type 2 is selected
+            if ($("#updateType").val() == "2") {
+                selectedImages.forEach((file) => {
+                    formData.append("mediaFiles", file);
+                });
+            }
+            // Add video file to formData if type 3 is selected
+            else if ($("#updateType").val() == "3") {
+                const videoFile = $("#videoFile")[0].files[0];
+                if (videoFile) {
+                    formData.append("mediaFiles", videoFile);
+                }
+            }
+
+            $.ajax({
+                url: `/admin/updates/addUpdates/${tagId}`,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = `/admin/updates/tagUpdates/${tagId}`;
+                    } else {
+                        alert("Error adding update: " + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                    alert("Error adding update. Please try again.");
+                },
+            });
+        });
+    });
+</script>

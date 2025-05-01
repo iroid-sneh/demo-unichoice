@@ -1,0 +1,1114 @@
+openapi: 3.0.0
+
+info:
+    title: Unichoice App
+    description: OpenAPI specification for Unichoice App
+    version: 1.0.0
+
+components:
+    schemas:
+        User:
+            type: object
+            properties:
+                phoneNumber:
+                    type: integer
+                    example: 9925447644
+                countryCode:
+                    type: integer
+                    example: +91
+                fullName:
+                    type: string
+                    maxLength: 26
+                    example: Sneh Patel
+                email:
+                    type: string
+                    example: sneh@gmail.com
+        Study:
+            type: object
+            properties:
+                id:
+                    type: string
+                title:
+                    type: string
+                description:
+                    type: string
+                fileUrl:
+                    type: string
+                    format: uri
+
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    responses:
+        GetLoginResponse:
+            description: User logged in successfully
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            data:
+                                type: object
+                                properties:
+                                    phoneNumber:
+                                        type: string
+                                        example: "+919925447644"
+                                    countryCode:
+                                        type: string
+                                        example: "+91"
+                                    message:
+                                        type: string
+                                        example: OTP sent successfully
+
+        VerifyOtpResponse:
+            description: OTP verification success
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: Login Successful
+                            profileRequired:
+                                type: boolean
+                                example: false
+                            token:
+                                type: string
+                                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2FjMDYxZmYyOTZkZjZkMWI0ZWY0NTYiLCJpYXQiOjE3MzkzMzE5MDIsImV4cCI6MTczOTkzNjcwMn0.
+
+        ProfileUpdateResponse:
+            description: User profile updated successfully
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: Profile Updated Successfully
+
+        GetUserAccountDetailsResponse:
+            description: User account details retrieved successfully
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            data:
+                                type: object
+                                properties:
+                                    fullName:
+                                        type: string
+                                        example: "Sneh Patel"
+                                    phoneNumber:
+                                        type: string
+                                        example: "+919925447644"
+                                    email:
+                                        type: string
+                                        example: "sneh@gmail.com"
+
+        LogoutResponse:
+            description: User logged out successfully
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: Logged out successfully
+
+        DeleteAccountResponse:
+            description: User account deleted successfully
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: Account deleted successfully
+
+        UnauthorizedError:
+            description: Unauthorized access
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: Unauthorized
+
+        BadRequestError:
+            description: Bad request error
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: Bad request error
+
+        NotFoundError:
+            description: Not Found
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: User not found
+
+        Success:
+            description: Success
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            message:
+                                type: string
+                                example: success
+
+paths:
+    /auth/login:
+        post:
+            summary: Send OTP to user via email
+            description: Sends an OTP to the users email address.
+            tags:
+                - Auth
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                            properties:
+                                email:
+                                    type: string
+                                    example: "sneh@gmail.com"
+            responses:
+                "200":
+                    $ref: "#/components/responses/GetLoginResponse"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /auth/verify-otp:
+        post:
+            summary: Verify OTP of User mail
+            description: Verify User OTP sent email address.
+            tags:
+                - Auth
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                                - otp
+                            properties:
+                                email:
+                                    type: string
+                                    example: "sneh@gmail.com"
+                                otp:
+                                    type: string
+                                    example: "111111"
+            responses:
+                "200":
+                    $ref: "#/components/responses/VerifyOtpResponse"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /auth/resend-otp:
+        post:
+            summary: Resend OTP
+            description: Resend mail OTP.
+            tags:
+                - Auth
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - email
+                            properties:
+                                email:
+                                    type: string
+                                    example: "sneh@gmail.com"
+            responses:
+                "200":
+                    $ref: "#/components/responses/VerifyOtpResponse"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /auth/profile:
+        post:
+            summary: User Profile information
+            description: compelete user profile if remining
+            tags:
+                - Auth
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - fullName
+                                - phoneNumber
+                            properties:
+                                fullName:
+                                    type: string
+                                    example: "Sneh Patel"
+                                phoneNumber:
+                                    type: string
+                                    example: "9925447644"
+            responses:
+                "200":
+                    $ref: "#/components/responses/GetUserAccountDetailsResponse"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /auth/account-details:
+        get:
+            summary: User Profile information
+            description: User account details api
+            tags:
+                - Auth
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    $ref: "#/components/responses/Success"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /auth/logout:
+        post:
+            summary: User Logout from Device
+            description: Logouts User from the Device
+            tags:
+                - Auth
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: false
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                deviceId:
+                                    type: string
+                                    example: SP1A.210812.016
+            responses:
+                "200":
+                    $ref: "#/components/responses/Success"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /auth/delete-account:
+        delete:
+            summary: Delete User Account
+            description: delete users account from the database with token
+            tags:
+                - Auth
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    $ref: "#/components/responses/Success"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /user/terms-and-conditions:
+        get:
+            summary: Terms and Conditions
+            description: Terms and Conditions for the Users
+            tags:
+                - User
+            security:
+                - bearerAuth: []
+            responses:
+                "200":
+                    $ref: "#/components/responses/Success"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /classes/:
+        get:
+            summary: Get a paginated list of classes
+            description: Fetch paginated classes with optional query parameters for pagination.
+            tags:
+                - Classes
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 1
+                  description: Page number for pagination (default is 1)
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Number of classes per page (default is 10)
+            responses:
+                "200":
+                    $ref: "#/components/responses/Success"
+                "401":
+                    $ref: "#/components/responses/UnauthorizedError"
+                "400":
+                    $ref: "#/components/responses/BadRequestError"
+    /study-college/:
+        get:
+            summary: get a Paginated list of Colleges list with Study Materials
+            description: Fetch paginated colleges with optional query parameter.
+            tags:
+                - Study Material
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 1
+                  description: Page number
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Number of records per page
+            responses:
+                200:
+                    description: Success response description
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: "67ebaf67ccf7ddc5d5bece59"
+                                                CollegeName:
+                                                    type: string
+                                                    example: "SDJIC"
+                                                location:
+                                                    type: string
+                                                    example: Surat
+                                                logo:
+                                                    type: string
+                                                    example: "study/image-1741779954727.png"
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /study-college/materials/{id}:
+        get:
+            summary: get a Paginated list of Study Materials from the CollegeId
+            description: Fetch paginated study materials with optional query parameters.
+            tags:
+                - Study Material
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                      default: 67ebaf67ccf7ddc5d5bece59
+                  description: CollegeId for Materials
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 1
+                  description: Page number
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Number of records per page
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: "67ebaf67ccf7ddc5d5bece59"
+                                                collegeId:
+                                                    type: string
+                                                    example: "67ebaf67ccf7ddc5d5bece59"
+                                                title:
+                                                    type: string
+                                                    example: "Exam Papers"
+                                                fileLinks:
+                                                    type: string
+                                                    example: www.example.com
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /colleges:
+        get:
+            summary: get a Paginated list of Colleges
+            description: Fetch paginated colleges with optional query parameters.
+            tags:
+                - Colleges
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 1
+                  description: Page number
+                - in: query
+                  name: pageLimit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Number of records per page
+                - in: query
+                  name: stream
+                  schema:
+                      type: integer
+                      default:
+                  description: Specific Stream
+                - in: query
+                  name: state
+                  schema:
+                      type: string
+                      default:
+                  description: Specific State
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: "67f3857eee6d0fd03ddc37b7"
+                                                index:
+                                                    type: number
+                                                    example: "1"
+                                                name:
+                                                    type: string
+                                                    example: "SDJIC"
+                                                state:
+                                                    type: string
+                                                    example: "Gujarat"
+                                                city:
+                                                    type: string
+                                                    example: "Surat"
+                                                nirfRank:
+                                                    type: string
+                                                    example: "144"
+                                                stream:
+                                                    type: string
+                                                    example: "Medical"
+                                                averageTutionFee:
+                                                    type: string
+                                                    example: "5.7 Lakh"
+                                                image:
+                                                    type: string
+                                                    example: "study/image-1741779954727.png"
+                                                top200:
+                                                    type: boolean
+                                                    example: "Yes"
+                                                freeApplication:
+                                                    type: boolean
+                                                    example: "No"
+                                                collegeAppLink:
+                                                    type: string
+                                                    example: "www.example.com"
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /colleges/apply:
+        post:
+            summary: Apply to Colleges from CollegeId
+            description: Apply to college with collegeIds and required deatils
+            tags:
+                - Colleges
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                collegeId:
+                                    type: string
+                                    example: "67d94874f45c1b6402bcc0df"
+                                name:
+                                    type: string
+                                    example: "Sneh Subhashbhai Patel"
+                                email:
+                                    type: string
+                                    example: "sneh@gmail.com"
+                                phone:
+                                    type: string
+                                    example: "9925447644"
+                                percentage:
+                                    type: number
+                                    example: 86
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                message:
+                                                    type: string
+                                                    example: "Applied To college Successfully"
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /colleges/interested:
+        post:
+            summary: Add or Remove Colleges From Interest
+            description: |-
+                - 0: Add College To Interested
+                - 1: Remove College from Interested
+            tags:
+                - Colleges
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                type:
+                                    type: number
+                                    example: 0
+                                collegeId:
+                                    type: string
+                                    example: 65fabc1234567890abcd1234
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /colleges/preference-list:
+        get:
+            summary: Get List of Colleges from Users [Stream|State] Preference
+            description: Fetch Colleges list from States and Stream of User Preference
+            tags:
+                - Colleges
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: ""
+                                                property1:
+                                                    type: string
+                                                    example: ""
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /colleges/rank:
+        get:
+            summary: Get List Of Colleges From [Category|Course|Rank]
+            description: Fetch List of Colleges from [CategoryId|CourseId|Rank(CutOff)]
+            tags:
+                - Colleges
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: query
+                  name: rankCategoryId
+                  schema:
+                      type: string
+                      default: 65fabc1234567890abcd1234
+                - in: query
+                  name: rankCourseId
+                  schema:
+                      type: string
+                      default: 65fabc1234567890abcd1234
+                - in: query
+                  name: rank
+                  schema:
+                      type: number
+                      default: 100
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /colleges/rank-option-list:
+        get:
+            summary: Get list of Colleges for the Rank Course Options List
+            description: Get Rank Course Colleges List
+            tags:
+                - Colleges
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /updates/college:
+        get:
+            summary: Get All Colleges Updates
+            description: Get Colleges Updates
+            tags:
+                - Updates
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 1
+                  description: Page number
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Number of records per page
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /updates/tags:
+        get:
+            summary: Get All Tag Updates
+            description: Get All Tag Updates
+            tags:
+                - Updates
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /college-updates/{id}:
+        get:
+            summary: Get a Paginated List of Updates
+            description: Get a Paginated List of Updates with type 0(College) and 1(tags)
+            tags:
+                - Updates
+            security:
+                - bearerAuth: []
+            parameters:
+                - in: path
+                  name: id
+                  schema:
+                      type: string
+                      example: "67d94874f45c1b6402bcc0df"
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 1
+                  description: Page number
+                - in: query
+                  name: limit
+                  schema:
+                      type: integer
+                      default: 10
+                  description: Number of records per page
+                - in: query
+                  name: type
+                  schema:
+                      type: string
+                      required: true
+                      description: type of Updates
+                      enum:
+                          - 0
+                          - 1
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: ""
+                                                property1:
+                                                    type: string
+                                                    example: ""
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /banners:
+        get:
+            summary: Get All Banners
+            description: Get All Banners
+            tags:
+                - Banners
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: ""
+                                                property1:
+                                                    type: string
+                                                    example: ""
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"
+    /force-update:
+        post:
+            summary: Force Update
+            description: Force Update
+            tags:
+                - Version
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required: ["device_type", "device_version"]
+                            properties:
+                                device_type:
+                                    type: string
+                                    example: android/ios
+                                device_vesrion:
+                                    type: string
+                                    example: 1.1.1
+            responses:
+                200:
+                    description: Success response
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: true
+                                    data:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                _id:
+                                                    type: string
+                                                    example: ""
+                                                property1:
+                                                    type: string
+                                                    example: ""
+                500:
+                    description: Server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: "Server error"

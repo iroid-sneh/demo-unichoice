@@ -1,0 +1,116 @@
+<%- include('../layouts/header') %>
+<style>
+    .error {
+        margin-top: 5px;
+        color: red;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- <h1 class="mb-4 text-gray-800 mt-2">Add Classes</h1> -->
+        <div class="col-lg-6 mx-auto">
+            <!-- Circle Buttons -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">Add Banners</h6>
+                    <a href="/admin/banners" class="btn btn-danger">Back</a>
+                </div>
+                <div class="card-body">
+                    <form id="banners" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>
+                                Upload Banner
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                style="line-height: 1.15"
+                                class="form-control"
+                                id="image"
+                                name="image"
+                                accept="image/jpg, image/jpeg, image/png"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Banner Link
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="link"
+                                name="link"
+                                placeholder="www.example.com"
+                                required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            style="background-color: #00ac4d; color: white"
+                            class="btn btn-primary mt-3"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<script>
+    $("#pageTitle").text("Add Banners");
+    $("#select-Classes").addClass("active");
+
+    $(document).ready(function () {
+        if (typeof $.validator === "undefined") {
+            console.error("jQuery Plugin is Not Loaded");
+            return;
+        }
+
+        $.validator.addMethod(
+            "noSpace",
+            function (value, element) {
+                return value.trim().length !== 0;
+            },
+            "Please no Space and Don't leave it Empty"
+        );
+
+        $.validator.addMethod(
+            "imageExtension",
+            function (value, element) {
+                var allowedExtension = ["jpg", "png", "jpeg", "gif"];
+                var fileExtension = value.split(".").pop().toLowerCase();
+                return $.inArray(fileExtension, allowedExtension) !== -1;
+            },
+            "Please Select A valid Image (JPG|JPEG|PNG) file"
+        );
+
+        $("#banners").validate({
+            rules: {
+                image: {
+                    required: true,
+                    imageExtension: true,
+                },
+                link: {
+                    required: true,
+                    noSpace: true,
+                },
+            },
+            message: {
+                image: "Banner Image is Required",
+                link: "Banner Link is Required",
+            },
+            submitHandler: function (form) {
+                form.submit();
+            },
+        });
+    });
+</script>
+
+<%- include('../layouts/footer') %>

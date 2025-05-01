@@ -1,0 +1,87 @@
+<%- include('../layouts/header') %>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <nav aria-label="breadcrumb"></nav>
+        </div>
+        <div class="row">
+            <div class="col-12 mt-4">
+                <h2 class="mb-4">Student applications</h2>
+                <div class="card shadow-sm p-4">
+                    <% if(success !='' ){ %>
+                    <div class="alert alert-success" id="success"><%= success %></div>
+                    <% } %> <% if(error !='' ){ %>
+                    <div class="alert alert-danger" id="error"><%= error %></div>
+                    <% } %>
+                    <div class="table-responsive">
+                        <table id="myClassesTable" class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>College Name</th>
+                                    <th>Applied Students</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script>
+    $("#success").show().delay(2000).fadeOut(2000);
+    $("#error").show().delay(2000).fadeOut(2000);
+    $("#pageTitle").text("Student applications");
+    $("#select-Classes").addClass("active");
+    
+    $(document).ready(function () {
+        if ($.fn.dataTable) {
+            $("#myClassesTable").DataTable({
+                paging: true,
+                responsive: true,
+                searching: true,
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                ajax: {
+                    url: `/admin/student-applications/list`,
+                    type: "GET",
+                },
+                columns: [
+                    {
+                        data: "id",
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                    },
+                    { data: "college.name" },
+                    { data: "applicationCount" },
+                    {
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            return `<a href="/admin/student-applications/students/${row._id}" class="btn btn-md" style="background-color: #00AC4D; color: white;">View</a>`;
+                        },
+                    },
+                ],
+            });
+        } else {
+            cosole.error("DataTables is not Loaded");
+        }
+    });
+</script>

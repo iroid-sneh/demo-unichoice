@@ -1,0 +1,153 @@
+<%- include('../layouts/header') %>
+
+<style>
+    .error {
+        margin-top: 5px;
+        color: red;
+    }
+</style>
+<div class="main-panel">
+    <div class="content-wrapper">
+        <!-- <h1 class="mb-4 text-gray-800 mt-2">Add Classes</h1> -->
+        <div class="col-lg-6 mx-auto">
+            <!-- Circle Buttons -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold" style="font-size: 20px">
+                        Edit Colleges For Study-Materials
+                    </h6>
+                    <a href="/admin/study-materials" class="btn btn-danger">Back</a>
+                </div>
+                <div class="card-body">
+                    <form
+                        id="colleges"
+                        method="post"
+                        action="/admin/study-materials/updateColleges/<%= collegeId.id %>"
+                        enctype="multipart/form-data"
+                    >
+                        <div class="form-group">
+                            <label>
+                                Logo
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="image"
+                                name="image"
+                                accept="image/jpg, image/jpeg, image/png"
+                                value=""
+                            />
+                            <img
+                                id="thumbnailPreview"
+                                src="<%= process.env.APP_URL_ADMIN %>/<%= collegeId.logo %>"
+                                alt="image"
+                                height="90"
+                                style="border-radius: 0"
+                                width="100"
+                                class="mt-2"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                College Name
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="collegeName"
+                                name="collegeName"
+                                placeholder="Enter College Name"
+                                value="<%= collegeId.collegeName %>"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Location
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                class="form-control"
+                                id="location"
+                                name="location"
+                                placeholder="Enter College Location"
+                                value="<%= collegeId.location %>"
+                            />
+                            <span class="error"></span>
+                        </div>
+                        <button
+                            type="submit"
+                            style="background-color: #00ac4d; color: white"
+                            class="btn mt-3"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layouts/footer') %>
+<!-- jQuery Library (Must be loaded first) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<!-- jQuery Validation Plugin -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Debugging: Check if jQuery and Validation Plugin are loaded
+
+        if (typeof $.validator === "undefined") {
+            alert("Error: jQuery Validation Plugin is not loaded!");
+            return;
+        }
+
+        // Custom validation: No spaces (prevent empty input)
+        $.validator.addMethod(
+            "noSpace",
+            function (value, element) {
+                return value.trim().length > 0;
+            },
+            "Field cannot be empty"
+        );
+
+        // Custom validation: Image extension check
+        $("#image").on("change", function () {
+            if ($(this).val()) {
+                // Clear error message when file is selected
+                $(this).valid();
+            }
+        });
+
+        // Initialize form validation
+        $("#colleges").validate({
+            rules: {
+                logo: {
+                    required: true,
+                    imageExtension: true,
+                },
+                collegeName: {
+                    required: true,
+                    noSpace: true,
+                },
+                location: {
+                    required: true,
+                    noSpace: true,
+                },
+            },
+            messages: {
+                logo: "College Logo is required",
+                collegeName: "College Name is required",
+                location: "Location is required",
+            },
+            submitHandler: function (form) {
+                form.submit();
+            },
+        });
+    });
+</script>

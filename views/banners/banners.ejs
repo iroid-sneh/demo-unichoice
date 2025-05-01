@@ -1,0 +1,119 @@
+<%- include('../layouts/header') %>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <nav aria-label="breadcrumb"></nav>
+        </div>
+        <div class="row">
+            <div class="col-12 mt-4">
+                <h2 class="mb-4">Banners</h2>
+                <div class="card shadow-sm p-4">
+                    <% if(success !='' ){ %>
+                    <div class="alert alert-success" id="success"><%= success %></div>
+                    <% } %> <% if(error !='' ){ %>
+                    <div class="alert alert-danger" id="error"><%= error %></div>
+                    <% } %>
+                    <div
+                        style="
+                            display: flex;
+                            justify-content: right;
+                            margin-right: 20px;
+                            margin-bottom: 30px;
+                        "
+                    >
+                        <a
+                            href="/admin/banners/addBanners"
+                            type="button"
+                            class="btn btn-custom-green"
+                            style="background-color: #00ac4d; color: white"
+                        >
+                            Add Banners
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="myClassesTable" class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Banner Image</th>
+                                    <th>Banner Link</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layouts/footer') %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script>
+    $("#success").show().delay(2000).fadeOut(2000);
+    $("#error").show().delay(2000).fadeOut(2000);
+    $("#pageTitle").text("Banners");
+    $("#select-Classse").addClass("active");
+
+    $(document).ready(function () {
+        if ($.fn.DataTable) {
+            $("#myClassesTable").DataTable({
+                paging: true,
+                responsive: true,
+                searching: true,
+                processing: true,
+                serverSide: true,
+                ordering: false,
+                ajax: {
+                    url: `/admin/banners/list`,
+                    type: "GET",
+                },
+                columns: [
+                    {
+                        data: "id",
+                        render: function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        },
+                    },
+                    {
+                        data: "image",
+                        render: function (data) {
+                            return data == null
+                                ? `<img src="${"<%= process.env.APP_URL_ADMIN %>"}/myClasses/background.jpg" height="70" style="border-radius: 0; width: 100px; height: 100px;" />`
+                                : `<img src="${"<%= process.env.APP_URL_ADMIN %>"}/${data}" style="border-radius: 0; width: 100px; height: 100px;"/>`;
+                        },
+                    },
+                    {
+                        data: "link",
+                        render: function (data, type, row, meta) {
+                            return data
+                                ? `<a href="${data}" target="_blank" class="btn btn-info btn-sm">Visit</a>`
+                                : "N/A";
+                        },
+                    },
+                    {
+                        data: null,
+                        render: function (data, row, type, meta) {
+                            return `<a href="/admin/banners/deleteBanner/${data._id}" class="btn btn-danger btn-md" color: white;">Delete</a>`;
+                        },
+                    },
+                ],
+            });
+        } else {
+            console.error("DataTable Not Loaded");
+        }
+    });
+</script>
